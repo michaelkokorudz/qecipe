@@ -1,0 +1,48 @@
+# C++ compiled object files
+*.o
+*.obj
+
+# C++ compiled dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# C++ compiled static libraries
+*.a
+*.lib
+
+# Executable files
+*.exe
+*.out
+*.app
+
+# CMake build files and directories
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# VS Code settings and workspace files
+.vscode/
+*.code-workspace
+
+# macOS system files
+.DS_Store
+
+# Git files (don't ignore this one if you want .gitignore tracked)
+.gitignore
+
+# Temporary or log files
+*.tmp
+*.log
+*.swp
+
+# JSON data files if they are used for temporary or test data storage
+*.json
+
+# Library files
+lib/
+
+# Backup files
+*.bak
+*~

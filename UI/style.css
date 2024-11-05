@@ -1,0 +1,52 @@
+/* General Styling for Text and Buttons */
+
+.green-text {
+    color: #62bb2e; /* Sidebar green */
+}
+
+.green-background {
+    background-color: #62bb2e; /* Use for backgrounds matching sidebar */
+    color: white; /* Text color for contrast on green backgrounds */
+}
+
+/* Sidebar Styling */
+
+.sidebar {
+    width: 250px;
+    background-color: #62bb2e;
+    padding: 15px;
+    position: fixed;
+    height: 100%;
+}
+
+.sidebar a {
+    color: white;
+    padding: 10px 15px;
+    display: block;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    background-color: #294f14; /* Darker shade for hover */
+    color: white;
+}
+
+/* Button Styling */
+
+.btn-green {
+    background-color: #62bb2e;
+    color: white;
+    border: none;
+}
+
+.btn-green:hover {
+    background-color: #294f14; /* Darker shade for hover */
+    color: white;
+}
+
+/* Use the same green color for header elements, borders, etc. */
+
+h1.green-text, h2.green-text, h3.green-text {
+    color: #62bb2e;
+    font-weight: bold;
+}

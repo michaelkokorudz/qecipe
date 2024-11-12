@@ -24,7 +24,7 @@ void SpicePantry::displaySpices() const {
     }
 }
 
-// Helper function to format spice display information
+//helper function to format spice display information
 std::string SpicePantry::formatSpiceDisplay(const SpiceItem& item) const {
     std::ostringstream oss;
     int currentAmount = item.calculateCurrentAmount();

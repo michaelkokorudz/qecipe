@@ -9,14 +9,13 @@
 class SpicePantry {
 public:
     SpicePantry();
-
+    
     void addSpice(const std::string& name, int percentage, const std::string& unit, int referenceAmount);
     void updateSpice(const std::string& name, int percentage);
     void displaySpices() const;
 
 private:
     std::unordered_map<std::string, SpiceItem> spices;
-
     std::string formatSpiceDisplay(const SpiceItem& item) const;
 };
 

@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_LeftoverLabFrontend_FILE /Users/michaelkokorudz/Documents/3rd Year Sem 1/CMPE320/workspaceC++/leftoverlab/LeftoverLabFrontend/build/Qt_6_8_0_for_macOS-Debug/LeftoverLabFrontend.app/Contents/MacOS/LeftoverLabFrontend)
-set(__QT_DEPLOY_TARGET_LeftoverLabFrontend_TYPE EXECUTABLE)

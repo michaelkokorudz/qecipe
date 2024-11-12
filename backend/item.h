@@ -12,7 +12,6 @@ public:
     int getQuantity() const;
     std::string getUnit() const;
     std::time_t getExpirationDate() const;
-
     void updateQuantity(int quantity);
 
 private:
@@ -20,6 +19,7 @@ private:
     int quantity;
     std::string unit;
     std::time_t expirationDate;
+    std::string storageLocation;
 };
 
 #endif

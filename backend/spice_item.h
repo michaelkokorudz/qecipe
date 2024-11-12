@@ -15,7 +15,7 @@ public:
     void updatePercentage(int newPercentage);
 
 private:
-    int percentage;       // Remaining percentage (1–100)
+    int percentage;       //remaining percentage (1–100)
     int referenceAmount;  // The reference amount when full (e.g., 100 grams)
 };
 

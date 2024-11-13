@@ -16,13 +16,7 @@ build_job:
     - apt-get update && apt-get install -y make g++ git
 
   script:
-    # Step 1: Clone Mongoose if not already in the repository
-    - mkdir -p backend/external/mongoose
-    - if [ ! -d "backend/external/mongoose/.git" ]; then
-        git clone https://github.com/cesanta/mongoose.git backend/external/mongoose;
-      fi
-
-    # Step 2: Build the project using Makefile
+    # Step 1: Build the project using Makefile
     - mkdir -p $BUILD_DIR
     - make -C backend  # Adjust path if Makefile is located elsewhere
 

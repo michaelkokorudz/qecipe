@@ -1,47 +1,46 @@
-# C++ compiled object files
+# Build artifacts and libraries
+/backend/build/
+/backend/lib/
+/backend/Ultralight/build/
+
+# Ultralight repo and other dependencies
+/backend/Ultralight/.git/
+/backend/Ultralight/.gitmodules
+
+# C++ compiled object files and libraries
 *.o
 *.obj
-
-# C++ compiled dynamic libraries
 *.so
 *.dylib
 *.dll
-
-# C++ compiled static libraries
 *.a
 *.lib
 
-# Executable files
+# Executable and output files
 *.exe
 *.out
 *.app
 
-# CMake build files and directories
+# CMake generated files
 CMakeFiles/
 CMakeCache.txt
-cmake_install.cmake
 Makefile
+*.cmake
 
-# VS Code settings and workspace files
+# IDE and editor-specific files
 .vscode/
 *.code-workspace
 
-# macOS system files
+# macOS specific files
 .DS_Store
 
-# Git files (don't ignore this one if you want .gitignore tracked)
-.gitignore
-
-# Temporary or log files
+# Log and temporary files
 *.tmp
 *.log
 *.swp
 
-# JSON data files if they are used for temporary or test data storage
+# JSON data files for temporary storage or test data
 *.json
-
-# Library files
-lib/
 
 # Backup files
 *.bak

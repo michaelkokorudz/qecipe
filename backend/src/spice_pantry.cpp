@@ -1,50 +1,47 @@
 #include "spice_pantry.h"
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
+// Constructor
 SpicePantry::SpicePantry() {}
 
-// Adds or updates a spice item for a specific user
+// Add or replace a spice for a user
 void SpicePantry::addSpice(int userId, const std::string& name, int percentage, const std::string& unit, int referenceAmount) {
-    auto& spices = userSpices[userId];  // Get or create the user's spice map
-    spices[name] = SpiceItem(name, percentage, unit, referenceAmount);  // Add or replace the spice item for the user
+    auto& spices = userSpices[userId];
+    auto it = spices.find(name);
+    if (it == spices.end()) {
+        spices.emplace(name, SpiceItem(name, percentage, unit, referenceAmount));
+    } else {
+        it->second = SpiceItem(name, percentage, unit, referenceAmount);
+    }
 }
 
-// Updates the percentage of a spice item for a specific user
+// Update the percentage of an existing spice for a user
 void SpicePantry::updateSpice(int userId, const std::string& name, int percentage) {
-    auto it = userSpices.find(userId);
-    if (it != userSpices.end()) {
-        auto& spices = it->second;
-        auto spiceIt = spices.find(name);
-        if (spiceIt != spices.end()) {
-            spiceIt->second.updatePercentage(percentage);  // Update the spice percentage for the user
-        } else {
-            std::cout << "Spice " << name << " not found in the pantry for user " << userId << ".\n";
-        }
+    if (userSpices.find(userId) != userSpices.end() && userSpices[userId].find(name) != userSpices[userId].end()) {
+        userSpices[userId][name].updatePercentage(percentage);
     } else {
-        std::cout << "No spices found for user " << userId << ".\n";
+        std::cerr << "Spice not found for user " << userId << ": " << name << std::endl;
     }
 }
 
-// Displays all spices for a specific user
+// Display all spices for a user
 void SpicePantry::displaySpices(int userId) const {
-    auto it = userSpices.find(userId);
-    if (it != userSpices.end() && !it->second.empty()) {
-        std::cout << "Spice Pantry for User " << userId << ":\n";
-        for (const auto& [name, spice] : it->second) {
-            std::cout << formatSpiceDisplay(spice) << "\n";
+    if (userSpices.find(userId) != userSpices.end()) {
+        for (const auto& [name, spice] : userSpices.at(userId)) {
+            std::cout << formatSpiceDisplay(spice) << std::endl;
         }
     } else {
-        std::cout << "No spices found in the pantry for User " << userId << ".\n";
+        std::cout << "No spices found for user " << userId << "." << std::endl;
     }
 }
 
-// Helper function to format spice display information
+// Helper to format spice display
 std::string SpicePantry::formatSpiceDisplay(const SpiceItem& item) const {
     std::ostringstream oss;
-    int currentAmount = item.calculateCurrentAmount();
-    oss << "- " << item.getName() << ": " << item.getPercentage() << "% remaining ("
-        << currentAmount << " " << item.getUnit() << " of " << item.getReferenceAmount()
-        << " " << item.getUnit() << " total)";
+    oss << std::left << std::setw(20) << item.getName()
+        << std::setw(10) << item.getPercentage() << "%"
+        << std::setw(10) << item.getUnit();
     return oss.str();
 }

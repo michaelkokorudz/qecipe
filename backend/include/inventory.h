@@ -6,6 +6,7 @@
 
 class Inventory {
 public:
+    Inventory();  // Default constructor
     Inventory(int expirationAlertDays);
 
     // User-specific methods for fridge and spice inventory
@@ -20,4 +21,4 @@ private:
     SpicePantry spicePantry;
 };
 
-#endif
+#endif  // INVENTORY_H

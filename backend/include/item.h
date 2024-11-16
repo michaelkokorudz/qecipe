@@ -6,6 +6,7 @@
 
 class Item {
 public:
+    Item(); 
     Item(const std::string& name, int quantity, const std::string& unit, const std::time_t& expirationDate);
 
     std::string getName() const;
@@ -19,7 +20,6 @@ private:
     int quantity;
     std::string unit;
     std::time_t expirationDate;
-    std::string storageLocation;
 };
 
 #endif

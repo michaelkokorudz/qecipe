@@ -9,8 +9,7 @@
 class SpicePantry {
 public:
     SpicePantry();
-    
-    // User-specific methods
+
     void addSpice(int userId, const std::string& name, int percentage, const std::string& unit, int referenceAmount);
     void updateSpice(int userId, const std::string& name, int percentage);
     void displaySpices(int userId) const;
@@ -20,4 +19,4 @@ private:
     std::string formatSpiceDisplay(const SpiceItem& item) const;
 };
 
-#endif
+#endif  // SPICE_PANTRY_H

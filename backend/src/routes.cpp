@@ -8,7 +8,7 @@
 #include "mongoose.h"
 
 // Global Inventory instance
-Inventory inventory;
+Inventory inventory(30);
 
 std::string getBody(const mg_http_message* hm) {
     return hm->body.len > 0 ? std::string(hm->body.buf, hm->body.len) : "";

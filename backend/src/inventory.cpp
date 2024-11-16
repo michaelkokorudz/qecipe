@@ -1,6 +1,7 @@
 #include "inventory.h"
-#include "date_utils.h"
 #include <iostream>
+
+Inventory::Inventory() : fridgeInventory(7), spicePantry() {}
 
 Inventory::Inventory(int expirationAlertDays)
     : fridgeInventory(expirationAlertDays), spicePantry() {}

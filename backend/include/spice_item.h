@@ -6,6 +6,7 @@
 
 class SpiceItem : public Item {
 public:
+    SpiceItem();  // Default constructor
     SpiceItem(const std::string& name, int percentage, const std::string& unit, int referenceAmount);
 
     int getPercentage() const;
@@ -15,8 +16,8 @@ public:
     void updatePercentage(int newPercentage);
 
 private:
-    int percentage;       //remaining percentage (1–100)
-    int referenceAmount;  // The reference amount when full (e.g., 100 grams)
+    int percentage;       // Remaining percentage (1–100)
+    int referenceAmount;  // Reference amount when full (e.g., 100 grams)
 };
 
-#endif
+#endif  // SPICE_ITEM_H

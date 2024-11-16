@@ -1,37 +1,30 @@
-# .gitlab-ci.yml
-
+# Define CI/CD stages
 stages:
   - build
   - test
 
-variables:
-  BUILD_DIR: "backend/build"  # Directory where build outputs will be stored
-
-build_job:
+# Build stage
+build:
   stage: build
-  image: gcc:latest
-
-  before_script:
-    # Install required build tools
-    - apt-get update && apt-get install -y make g++ git
-
   script:
-    # Step 1: Build the project using Makefile
-    - mkdir -p $BUILD_DIR
-    - make -C backend  # Adjust path if Makefile is located elsewhere
-
+    - echo "Building project..."
+    - mkdir -p build
+    - cd build
+    - cmake ..
+    - make
   artifacts:
     paths:
-      - backend/build/
+      - build/  # Save build artifacts for debugging if needed
 
-test_job:
+# Test stage
+test:
   stage: test
-  image: gcc:latest
-
-  before_script:
-    # Install required build tools (if not carried over from build_job)
-    - apt-get update && apt-get install -y make g++ git
-
   script:
-    # Run tests, assuming `make test` is set up in your Makefile
-    - make -C backend test
+    - echo "Running tests..."
+    - mkdir -p build
+    - cd build
+    - cmake ..
+    - make
+    - ctest --output-on-failure
+  dependencies:
+    - build  # Ensure the build job runs before tests

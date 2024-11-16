@@ -1,5 +1,7 @@
 #include "item.h"
 
+Item::Item() : name(""), quantity(0), unit(""), expirationDate(0) {}
+
 Item::Item(const std::string& name, int quantity, const std::string& unit, const std::time_t& expirationDate)
     : name(name), quantity(quantity), unit(unit), expirationDate(expirationDate) {}
 
@@ -20,5 +22,5 @@ std::time_t Item::getExpirationDate() const {
 }
 
 void Item::updateQuantity(int quantity) {
-    this->quantity += quantity;
+    this->quantity = quantity;
 }

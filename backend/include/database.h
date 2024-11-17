@@ -2,19 +2,36 @@
 #define DATABASE_H
 
 #include <string>
+#include <vector>
 
-// Function to save an item to the fridge inventory in the database
-bool saveFridgeItem(int userId, const std::string& name, int quantity, const std::string& unit, const std::string& expirationDate);
 
-// Function to retrieve fridge items for a specific user from the database
-// (Assume we use a vector of items or some other container to hold results; here we’ll declare it simply)
-bool getFridgeItems(int userId, std::vector<std::string>& items);  // Example, replace std::vector<std::string> with actual type
 
-// Function to save an item to the spice inventory in the database
-bool saveSpiceItem(int userId, const std::string& name, int percentage, const std::string& unit, int referenceAmount);
+void ensureDatabaseDirectoryExists();
 
-// Function to retrieve spice items for a specific user from the database
-bool getSpiceItems(int userId, std::vector<std::string>& items);  // Example, replace std::vector<std::string> with actual type
+// Get the full database path
+std::string getDatabasePath();
+
+// Generate a table name based on the username and table type
+std::string generateTableName(const std::string& username, const std::string& tableType);
+
+// Initialize the core database structure
+void initializeDatabase();
+
+// User management
+bool addUser(const std::string& username, const std::string& password); // Add a new user
+bool userExists(const std::string& username);                          // Check if a user exists
+
+// Create user-specific tables
+bool createUserSpecificTables(const std::string& username);
+
+std::string getUsernameById(int userId);
+
+// Fridge item management
+bool saveFridgeItem(const std::string& username, const std::string& name, int quantity, const std::string& unit, const std::string& expirationDate);
+bool getFridgeItems(const std::string& username, std::vector<std::string>& items);
+
+// Spice item management
+bool saveSpiceItem(const std::string& username, const std::string& name, int percentage, const std::string& unit, int referenceAmount);
+bool getSpiceItems(const std::string& username, std::vector<std::string>& items);
 
 #endif // DATABASE_H
-

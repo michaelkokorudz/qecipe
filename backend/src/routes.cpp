@@ -62,9 +62,18 @@ void handleAddFridgeItem(struct mg_connection* conn, struct mg_http_message* hm)
 
         std::time_t expirationTime = parseDate(expirationDate);
 
+        // Retrieve username from userId
+        std::string username = getUsernameById(userId);
+        if (username.empty()) {
+            mg_http_reply(conn, 404, "Content-Type: text/plain\r\n", "User not found");
+            return;
+        }
+
+        // Add the item to the inventory
         inventory.addFridgeItem(userId, name, quantity, unit, expirationTime);
 
-        bool saveSuccess = saveFridgeItem(userId, name, quantity, unit, expirationDate);
+        // Save the item in the database
+        bool saveSuccess = saveFridgeItem(username, name, quantity, unit, expirationDate);
 
         if (saveSuccess) {
             mg_http_reply(conn, 200, "Content-Type: text/plain\r\n", "Item added successfully");

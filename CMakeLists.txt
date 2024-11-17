@@ -15,7 +15,7 @@ add_executable(leftoverlab
     backend/src/inventory.cpp
     backend/src/spice_item.cpp
     backend/src/fridge_inventory.cpp
-    backend/database/database.cpp
+    backend/src/database.cpp
     backend/src/mongoose.c
     backend/src/spice_pantry.cpp  # Ensure this file is listed if it exists
     backend/src/item.cpp    
@@ -27,13 +27,8 @@ include_directories(backend/include)
 
 # Optional: Link SQLite3
 find_package(SQLite3 REQUIRED)
-if (SQLite3_FOUND)
-    message(STATUS "SQLite3 include dirs: ${SQLite3_INCLUDE_DIRS}")
-    target_include_directories(leftoverlab PRIVATE ${SQLite3_INCLUDE_DIRS})
-    target_link_libraries(leftoverlab PRIVATE ${SQLite3_LIBRARIES})
-else()
-    message(FATAL_ERROR "SQLite3 not found. Please install SQLite3 to proceed.")
-endif()
+target_include_directories(leftoverlab PRIVATE ${SQLite3_INCLUDE_DIRS})
+target_link_libraries(leftoverlab PRIVATE ${SQLite3_LIBRARIES})
 
 # Optional: Enable testing (if applicable)
 enable_testing()

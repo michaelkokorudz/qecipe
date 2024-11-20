@@ -14,6 +14,7 @@ add_executable(leftoverlab
     backend/src/routes.cpp
     backend/src/inventory.cpp
     backend/src/spice_item.cpp
+    backend/src/api_methods.cpp
     backend/src/fridge_inventory.cpp
     backend/src/database.cpp
     backend/src/mongoose.c

@@ -8,6 +8,8 @@
 
 void ensureDatabaseDirectoryExists();
 
+bool tableExists(const std::string& tableName);
+
 // Get the full database path
 std::string getDatabasePath();
 
@@ -31,7 +33,7 @@ bool saveFridgeItem(const std::string& username, const std::string& name, int qu
 bool getFridgeItems(const std::string& username, std::vector<std::string>& items);
 
 // Spice item management
-bool saveSpiceItem(const std::string& username, const std::string& name, int percentage, const std::string& unit, int referenceAmount);
+bool saveSpiceItem(const std::string& username, const std::string& name, int percentage, const std::string& unit, int referenceAmount, const std::string& expirationDate);
 bool getSpiceItems(const std::string& username, std::vector<std::string>& items);
 
 #endif // DATABASE_H

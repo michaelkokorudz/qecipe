@@ -26,6 +26,35 @@ std::string generateTableName(const std::string& username, const std::string& ta
     return tableType + "_" + username;
 }
 
+// Check if a table exists in the database
+bool tableExists(const std::string& tableName) {
+    sqlite3* db;
+    std::string dbPath = getDatabasePath();
+    if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
+        std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
+    std::string query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?;";
+    sqlite3_stmt* stmt;
+    bool exists = false;
+
+    if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, tableName.c_str(), -1, SQLITE_STATIC);
+
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            exists = true; // Table exists
+        }
+        sqlite3_finalize(stmt);
+    } else {
+        std::cerr << "Error preparing table check statement: " << sqlite3_errmsg(db) << std::endl;
+    }
+
+    sqlite3_close(db);
+    return exists;
+}
+
+
 // Initialize the core database structure
 void initializeDatabase() {
     ensureDatabaseDirectoryExists();  // Ensure the directory exists
@@ -163,13 +192,15 @@ bool userExists(const std::string& username) {
 bool createUserSpecificTables(const std::string& username) {
     sqlite3* db;
     std::string dbPath = getDatabasePath();
+
+    // Open database
     if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
         std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
         return false;
     }
 
-    // Create Fridge_<username> table
-    std::string fridgeTableSQL = 
+    // Generate table creation SQL statements
+    std::string fridgeTableSQL =
         "CREATE TABLE IF NOT EXISTS " + generateTableName(username, "Fridge") + R"sql(
             (name TEXT NOT NULL,
              quantity INTEGER NOT NULL,
@@ -178,18 +209,18 @@ bool createUserSpecificTables(const std::string& username) {
             );
         )sql";
 
-    // Create Spice_<username> table
-    std::string spiceTableSQL = 
+    
+    std::string spiceTableSQL =
         "CREATE TABLE IF NOT EXISTS " + generateTableName(username, "Spice") + R"sql(
             (name TEXT NOT NULL,
              percentage INTEGER NOT NULL,
              unit TEXT NOT NULL,
-             reference_amount INTEGER NOT NULL
+             reference_amount INTEGER NOT NULL,
+             expiration_date TEXT NOT NULL
             );
         )sql";
 
-    // Create User_<username> table for login credentials
-    std::string userTableSQL = 
+    std::string userTableSQL =
         "CREATE TABLE IF NOT EXISTS " + generateTableName(username, "User") + R"sql(
             (username TEXT PRIMARY KEY,
              password TEXT NOT NULL,
@@ -197,9 +228,8 @@ bool createUserSpecificTables(const std::string& username) {
             );
         )sql";
 
-    char* errorMessage = nullptr;
-
     // Execute fridge table creation
+    char* errorMessage = nullptr;
     if (sqlite3_exec(db, fridgeTableSQL.c_str(), nullptr, nullptr, &errorMessage) != SQLITE_OK) {
         std::cerr << "Error creating fridge table for " << username << ": " << errorMessage << std::endl;
         sqlite3_free(errorMessage);
@@ -215,7 +245,7 @@ bool createUserSpecificTables(const std::string& username) {
         return false;
     }
 
-    // Execute user-specific login table creation
+    // Execute user table creation
     if (sqlite3_exec(db, userTableSQL.c_str(), nullptr, nullptr, &errorMessage) != SQLITE_OK) {
         std::cerr << "Error creating user-specific login table for " << username << ": " << errorMessage << std::endl;
         sqlite3_free(errorMessage);
@@ -224,6 +254,8 @@ bool createUserSpecificTables(const std::string& username) {
     }
 
     std::cout << "Tables created or verified for user: " << username << "\n";
+
+    // Close database
     sqlite3_close(db);
     return true;
 }
@@ -239,6 +271,13 @@ bool saveFridgeItem(const std::string& username, const std::string& name, int qu
 
     std::string tableName = generateTableName(username, "Fridge");
 
+    // Verify that the table exists
+    if (!tableExists(tableName)) {
+        std::cerr << "Table " << tableName << " does not exist. Fridge item cannot be saved.\n";
+        sqlite3_close(db);
+        return false;
+    }
+
     // Start a transaction to ensure atomicity
     const char* beginTransaction = "BEGIN TRANSACTION;";
     if (sqlite3_exec(db, beginTransaction, nullptr, nullptr, nullptr) != SQLITE_OK) {
@@ -247,71 +286,92 @@ bool saveFridgeItem(const std::string& username, const std::string& name, int qu
         return false;
     }
 
-    // Check if the item already exists
-    std::string checkSQL = "SELECT quantity, expiration_date FROM " + tableName + " WHERE name = ? AND unit = ?;";
-    sqlite3_stmt* checkStmt;
-    if (sqlite3_prepare_v2(db, checkSQL.c_str(), -1, &checkStmt, nullptr) == SQLITE_OK) {
-        sqlite3_bind_text(checkStmt, 1, name.c_str(), -1, SQLITE_STATIC);
-        sqlite3_bind_text(checkStmt, 2, unit.c_str(), -1, SQLITE_STATIC);
+    try {
+        // Check if the item already exists
+        std::string checkSQL = "SELECT quantity, expiration_date FROM " + tableName + " WHERE name = ? AND unit = ?;";
+        sqlite3_stmt* checkStmt;
 
-        if (sqlite3_step(checkStmt) == SQLITE_ROW) {
-            // Item exists, update quantity and expiration date
-            int existingQuantity = sqlite3_column_int(checkStmt, 0);
-            std::string existingExpiration = reinterpret_cast<const char*>(sqlite3_column_text(checkStmt, 1));
+        if (sqlite3_prepare_v2(db, checkSQL.c_str(), -1, &checkStmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(checkStmt, 1, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(checkStmt, 2, unit.c_str(), -1, SQLITE_STATIC);
 
-            int newQuantity = existingQuantity + quantity;
-            std::string newExpirationDate = (expirationDate < existingExpiration) ? expirationDate : existingExpiration;
+            if (sqlite3_step(checkStmt) == SQLITE_ROW) {
+                // Item exists, update quantity and expiration date
+                int existingQuantity = sqlite3_column_int(checkStmt, 0);
+                std::string existingExpiration = reinterpret_cast<const char*>(sqlite3_column_text(checkStmt, 1));
 
-            sqlite3_finalize(checkStmt);
+                int newQuantity = existingQuantity + quantity;
+                std::string newExpirationDate = (expirationDate < existingExpiration) ? expirationDate : existingExpiration;
 
-            std::string updateSQL = "UPDATE " + tableName + " SET quantity = ?, expiration_date = ? WHERE name = ? AND unit = ?;";
-            sqlite3_stmt* updateStmt;
-            if (sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &updateStmt, nullptr) == SQLITE_OK) {
-                sqlite3_bind_int(updateStmt, 1, newQuantity);
-                sqlite3_bind_text(updateStmt, 2, newExpirationDate.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(updateStmt, 3, name.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(updateStmt, 4, unit.c_str(), -1, SQLITE_STATIC);
+                sqlite3_finalize(checkStmt);
 
-                if (sqlite3_step(updateStmt) == SQLITE_DONE) {
-                    std::cout << "Updated item '" << name << "' in table '" << tableName << "'.\n";
+                std::string updateSQL = "UPDATE " + tableName + " SET quantity = ?, expiration_date = ? WHERE name = ? AND unit = ?;";
+                sqlite3_stmt* updateStmt;
+
+                if (sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &updateStmt, nullptr) == SQLITE_OK) {
+                    sqlite3_bind_int(updateStmt, 1, newQuantity);
+                    sqlite3_bind_text(updateStmt, 2, newExpirationDate.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_text(updateStmt, 3, name.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_text(updateStmt, 4, unit.c_str(), -1, SQLITE_STATIC);
+
+                    if (sqlite3_step(updateStmt) == SQLITE_DONE) {
+                        std::cout << "Updated item '" << name << "' in table '" << tableName << "'.\n";
+                    } else {
+                        throw std::runtime_error("Error updating item: " + std::string(sqlite3_errmsg(db)));
+                    }
+                    sqlite3_finalize(updateStmt);
                 } else {
-                    std::cerr << "Error updating item: " << sqlite3_errmsg(db) << std::endl;
+                    throw std::runtime_error("Error preparing update statement: " + std::string(sqlite3_errmsg(db)));
                 }
-                sqlite3_finalize(updateStmt);
+            } else {
+                // Item does not exist, insert as new
+                sqlite3_finalize(checkStmt);
+
+                std::string insertSQL = "INSERT INTO " + tableName + " (name, quantity, unit, expiration_date) VALUES (?, ?, ?, ?);";
+                sqlite3_stmt* insertStmt;
+
+                if (sqlite3_prepare_v2(db, insertSQL.c_str(), -1, &insertStmt, nullptr) == SQLITE_OK) {
+                    sqlite3_bind_text(insertStmt, 1, name.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_int(insertStmt, 2, quantity);
+                    sqlite3_bind_text(insertStmt, 3, unit.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_text(insertStmt, 4, expirationDate.c_str(), -1, SQLITE_STATIC);
+
+                    if (sqlite3_step(insertStmt) == SQLITE_DONE) {
+                        std::cout << "Inserted item '" << name << "' into table '" << tableName << "'.\n";
+                    } else {
+                        throw std::runtime_error("Error inserting item: " + std::string(sqlite3_errmsg(db)));
+                    }
+                    sqlite3_finalize(insertStmt);
+                } else {
+                    throw std::runtime_error("Error preparing insert statement: " + std::string(sqlite3_errmsg(db)));
+                }
             }
         } else {
-            // Item does not exist, insert as new
-            sqlite3_finalize(checkStmt);
-
-            std::string insertSQL = "INSERT INTO " + tableName + " (name, quantity, unit, expiration_date) VALUES (?, ?, ?, ?);";
-            sqlite3_stmt* insertStmt;
-            if (sqlite3_prepare_v2(db, insertSQL.c_str(), -1, &insertStmt, nullptr) == SQLITE_OK) {
-                sqlite3_bind_text(insertStmt, 1, name.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_int(insertStmt, 2, quantity);
-                sqlite3_bind_text(insertStmt, 3, unit.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(insertStmt, 4, expirationDate.c_str(), -1, SQLITE_STATIC);
-
-                if (sqlite3_step(insertStmt) == SQLITE_DONE) {
-                    std::cout << "Inserted item '" << name << "' into table '" << tableName << "'.\n";
-                } else {
-                    std::cerr << "Error inserting item: " << sqlite3_errmsg(db) << std::endl;
-                }
-                sqlite3_finalize(insertStmt);
-            }
+            throw std::runtime_error("Error preparing check statement: " + std::string(sqlite3_errmsg(db)));
         }
-    } else {
-        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
-    }
 
-    // Commit the transaction
-    const char* commitTransaction = "COMMIT;";
-    if (sqlite3_exec(db, commitTransaction, nullptr, nullptr, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to commit transaction: " << sqlite3_errmsg(db) << std::endl;
+        // Commit the transaction
+        const char* commitTransaction = "COMMIT;";
+        if (sqlite3_exec(db, commitTransaction, nullptr, nullptr, nullptr) != SQLITE_OK) {
+            throw std::runtime_error("Failed to commit transaction: " + std::string(sqlite3_errmsg(db)));
+        }
+
+    } catch (const std::exception& ex) {
+        std::cerr << ex.what() << std::endl;
+
+        // Rollback the transaction on error
+        const char* rollbackTransaction = "ROLLBACK;";
+        if (sqlite3_exec(db, rollbackTransaction, nullptr, nullptr, nullptr) != SQLITE_OK) {
+            std::cerr << "Failed to rollback transaction: " << sqlite3_errmsg(db) << std::endl;
+        }
+        sqlite3_close(db);
+        return false;
     }
 
     sqlite3_close(db);
     return true;
 }
+
 
 // Retrieve fridge items for a user
 bool getFridgeItems(const std::string& username, std::vector<std::string>& items) {
@@ -346,7 +406,7 @@ bool getFridgeItems(const std::string& username, std::vector<std::string>& items
     return false;
 }
 // Add or update a spice item
-bool saveSpiceItem(const std::string& username, const std::string& name, int percentage, const std::string& unit, int referenceAmount) {
+bool saveSpiceItem(const std::string& username, const std::string& name, int percentage, const std::string& unit, int referenceAmount, const std::string& expirationDate) {
     sqlite3* db;
     std::string dbPath = getDatabasePath();
     if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
@@ -364,80 +424,98 @@ bool saveSpiceItem(const std::string& username, const std::string& name, int per
         return false;
     }
 
-    // Check if the spice item already exists
-    std::string checkSQL = "SELECT percentage, reference_amount FROM " + tableName + " WHERE name = ? AND unit = ?;";
-    sqlite3_stmt* checkStmt;
-    if (sqlite3_prepare_v2(db, checkSQL.c_str(), -1, &checkStmt, nullptr) == SQLITE_OK) {
-        sqlite3_bind_text(checkStmt, 1, name.c_str(), -1, SQLITE_STATIC);
-        sqlite3_bind_text(checkStmt, 2, unit.c_str(), -1, SQLITE_STATIC);
+    try {
+        // Check if the spice item already exists
+        std::string checkSQL = "SELECT percentage, reference_amount, expiration_date FROM " + tableName + " WHERE name = ? AND unit = ?;";
+        sqlite3_stmt* checkStmt;
+        if (sqlite3_prepare_v2(db, checkSQL.c_str(), -1, &checkStmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(checkStmt, 1, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(checkStmt, 2, unit.c_str(), -1, SQLITE_STATIC);
 
-        if (sqlite3_step(checkStmt) == SQLITE_ROW) {
-            // Spice item exists, update percentage and reference amount
-            int existingPercentage = sqlite3_column_int(checkStmt, 0);
-            int existingReference = sqlite3_column_int(checkStmt, 1);
+            if (sqlite3_step(checkStmt) == SQLITE_ROW) {
+                // Spice item exists, update percentage, reference amount, and expiration date
+                int existingPercentage = sqlite3_column_int(checkStmt, 0);
+                int existingReference = sqlite3_column_int(checkStmt, 1);
+                std::string existingExpiration = reinterpret_cast<const char*>(sqlite3_column_text(checkStmt, 2));
 
-            int newReferenceAmount = existingReference + referenceAmount;
+                int newReferenceAmount = existingReference + referenceAmount;
 
-            // Calculate new percentage as a weighted average
-            int newPercentage = static_cast<int>(
-                (existingPercentage * existingReference + percentage * referenceAmount) / static_cast<double>(newReferenceAmount)
-            );
+                // Calculate new percentage as a weighted average
+                int newPercentage = static_cast<int>(
+                    (existingPercentage * existingReference + percentage * referenceAmount) / static_cast<double>(newReferenceAmount)
+                );
 
-            sqlite3_finalize(checkStmt);
+                // Keep the earlier expiration date
+                std::string newExpirationDate = (expirationDate < existingExpiration) ? expirationDate : existingExpiration;
 
-            std::string updateSQL = "UPDATE " + tableName + " SET percentage = ?, reference_amount = ? WHERE name = ? AND unit = ?;";
-            sqlite3_stmt* updateStmt;
-            if (sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &updateStmt, nullptr) == SQLITE_OK) {
-                sqlite3_bind_int(updateStmt, 1, newPercentage);
-                sqlite3_bind_int(updateStmt, 2, newReferenceAmount);
-                sqlite3_bind_text(updateStmt, 3, name.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(updateStmt, 4, unit.c_str(), -1, SQLITE_STATIC);
+                sqlite3_finalize(checkStmt);
 
-                if (sqlite3_step(updateStmt) == SQLITE_DONE) {
-                    std::cout << "Updated spice item '" << name << "' in table '" << tableName << "'.\n";
+                std::string updateSQL = "UPDATE " + tableName + " SET percentage = ?, reference_amount = ?, expiration_date = ? WHERE name = ? AND unit = ?;";
+                sqlite3_stmt* updateStmt;
+                if (sqlite3_prepare_v2(db, updateSQL.c_str(), -1, &updateStmt, nullptr) == SQLITE_OK) {
+                    sqlite3_bind_int(updateStmt, 1, newPercentage);
+                    sqlite3_bind_int(updateStmt, 2, newReferenceAmount);
+                    sqlite3_bind_text(updateStmt, 3, newExpirationDate.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_text(updateStmt, 4, name.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_text(updateStmt, 5, unit.c_str(), -1, SQLITE_STATIC);
+
+                    if (sqlite3_step(updateStmt) == SQLITE_DONE) {
+                        std::cout << "Updated spice item '" << name << "' in table '" << tableName << "'.\n";
+                    } else {
+                        throw std::runtime_error("Error updating spice item: " + std::string(sqlite3_errmsg(db)));
+                    }
+                    sqlite3_finalize(updateStmt);
                 } else {
-                    std::cerr << "Error updating spice item: " << sqlite3_errmsg(db) << std::endl;
+                    throw std::runtime_error("Error preparing update statement: " + std::string(sqlite3_errmsg(db)));
                 }
-                sqlite3_finalize(updateStmt);
             } else {
-                std::cerr << "Error preparing update statement: " << sqlite3_errmsg(db) << std::endl;
+                // Spice item does not exist, insert as new
+                sqlite3_finalize(checkStmt);
+
+                std::string insertSQL = "INSERT INTO " + tableName + " (name, percentage, unit, reference_amount, expiration_date) VALUES (?, ?, ?, ?, ?);";
+                sqlite3_stmt* insertStmt;
+                if (sqlite3_prepare_v2(db, insertSQL.c_str(), -1, &insertStmt, nullptr) == SQLITE_OK) {
+                    sqlite3_bind_text(insertStmt, 1, name.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_int(insertStmt, 2, percentage);
+                    sqlite3_bind_text(insertStmt, 3, unit.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_bind_int(insertStmt, 4, referenceAmount);
+                    sqlite3_bind_text(insertStmt, 5, expirationDate.c_str(), -1, SQLITE_STATIC);
+
+                    if (sqlite3_step(insertStmt) == SQLITE_DONE) {
+                        std::cout << "Inserted spice item '" << name << "' into table '" << tableName << "'.\n";
+                    } else {
+                        throw std::runtime_error("Error inserting spice item: " + std::string(sqlite3_errmsg(db)));
+                    }
+                    sqlite3_finalize(insertStmt);
+                } else {
+                    throw std::runtime_error("Error preparing insert statement: " + std::string(sqlite3_errmsg(db)));
+                }
             }
         } else {
-            // Spice item does not exist, insert as new
-            sqlite3_finalize(checkStmt);
-
-            std::string insertSQL = "INSERT INTO " + tableName + " (name, percentage, unit, reference_amount) VALUES (?, ?, ?, ?);";
-            sqlite3_stmt* insertStmt;
-            if (sqlite3_prepare_v2(db, insertSQL.c_str(), -1, &insertStmt, nullptr) == SQLITE_OK) {
-                sqlite3_bind_text(insertStmt, 1, name.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_int(insertStmt, 2, percentage);
-                sqlite3_bind_text(insertStmt, 3, unit.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_int(insertStmt, 4, referenceAmount);
-
-                if (sqlite3_step(insertStmt) == SQLITE_DONE) {
-                    std::cout << "Inserted spice item '" << name << "' into table '" << tableName << "'.\n";
-                } else {
-                    std::cerr << "Error inserting spice item: " << sqlite3_errmsg(db) << std::endl;
-                }
-                sqlite3_finalize(insertStmt);
-            } else {
-                std::cerr << "Error preparing insert statement: " << sqlite3_errmsg(db) << std::endl;
-            }
+            throw std::runtime_error("Error preparing check statement: " + std::string(sqlite3_errmsg(db)));
         }
-    } else {
-        std::cerr << "Error preparing check statement: " << sqlite3_errmsg(db) << std::endl;
-    }
 
-    // Commit the transaction
-    const char* commitTransaction = "COMMIT;";
-    if (sqlite3_exec(db, commitTransaction, nullptr, nullptr, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to commit transaction: " << sqlite3_errmsg(db) << std::endl;
-        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr); // Rollback transaction in case of failure
+        // Commit the transaction
+        const char* commitTransaction = "COMMIT;";
+        if (sqlite3_exec(db, commitTransaction, nullptr, nullptr, nullptr) != SQLITE_OK) {
+            throw std::runtime_error("Failed to commit transaction: " + std::string(sqlite3_errmsg(db)));
+        }
+    } catch (const std::exception& ex) {
+        std::cerr << ex.what() << std::endl;
+
+        // Rollback the transaction on error
+        const char* rollbackTransaction = "ROLLBACK;";
+        if (sqlite3_exec(db, rollbackTransaction, nullptr, nullptr, nullptr) != SQLITE_OK) {
+            std::cerr << "Failed to rollback transaction: " << sqlite3_errmsg(db) << std::endl;
+        }
+        sqlite3_close(db);
+        return false;
     }
 
     sqlite3_close(db);
     return true;
 }
+
 
 // Retrieve spice items for a user
 bool getSpiceItems(const std::string& username, std::vector<std::string>& items) {
@@ -459,6 +537,7 @@ bool getSpiceItems(const std::string& username, std::vector<std::string>& items)
             item += ", Percentage: " + std::to_string(sqlite3_column_int(stmt, 1));
             item += "%, Unit: " + std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
             item += ", Reference Amount: " + std::to_string(sqlite3_column_int(stmt, 3));
+            item += ", Expiration: " + std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))); // expiration_date
 
             items.push_back(item);
         }

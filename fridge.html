@@ -1,53 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fridge Inventory</title>
+  <title>Recipe Lookup</title>
   <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
-    rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" rel="stylesheet">
   <style>
     body {
       display: flex;
       height: 100vh;
     }
-
     .sidebar {
-      width: 200px;
-      min-width: 200px;
-      max-width: 200px;
+      width: 200px; /* Set width here for consistency */
+      min-width: 200px; /* Use min-width to prevent shrinking */
+      max-width: 200px; /* Use max-width to prevent expanding */
       background-color: #62bb2e;
       padding: 15px;
     }
-
     .sidebar a {
       color: white;
       padding: 10px 15px;
       display: block;
       text-decoration: none;
     }
-
     .sidebar a:hover {
       background-color: #294f14;
       color: white;
     }
-
     .content {
       flex-grow: 1;
       padding: 20px;
     }
-
     .navbar .user-icon {
       font-size: 1.5rem;
       color: #62bb2e;
     }
   </style>
 </head>
-
 <body>
 
   <!-- Sidebar -->
@@ -70,11 +62,11 @@
 
     <!-- Add Item Button -->
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-      <button type="button" class="btn mt-3 mb-3" style="background-color: #62bb2e; color: white;" data-toggle="modal"
-        data-target="#addItemModal">
+      <button type="button" class="btn mt-3 mb-3" style="background-color: #62bb2e; color: white;" data-toggle="modal" data-target="#addItemModal">
         Add Item
       </button>
     </div>
+    
 
     <!-- Inventory Table -->
     <table class="table">
@@ -86,8 +78,24 @@
           <th scope="col" class="text-right">Actions</th>
         </tr>
       </thead>
-      <tbody id="inventoryTableBody">
-        <!-- Rows will be populated dynamically -->
+      <tbody>
+        <tr>
+          <td>Apples</td>
+          <td>5</td>
+          <td>Fridge</td>
+          <td class="text-right">
+            <div class="dropdown">
+              <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                &#x22EE;
+              </button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="#">Duplicate</a>
+                <a class="dropdown-item" href="#">Edit</a>
+                <a class="dropdown-item text-danger" href="#">Delete</a>
+              </div>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -110,7 +118,7 @@
             </div>
             <div class="form-group">
               <label for="itemQuantity">Quantity</label>
-              <input type="number" class="form-control" id="itemQuantity" placeholder="Enter quantity">
+              <input type="text" class="form-control" id="itemQuantity" placeholder="Enter quantity">
             </div>
             <div class="form-group">
               <label for="itemLocation">Location</label>
@@ -124,8 +132,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" style="background-color: #62bb2e; color: white;"
-            onclick="addItem()">Add Item</button>
+          <button type="button" class="btn btn-primary" style="background-color: #62bb2e; color: white;" onclick="addItem()">Add Item</button>
         </div>
       </div>
     </div>
@@ -135,25 +142,46 @@
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="js/comms.js"></script>
+
   <script>
-    function addItem(){
-      console.log("hello");
-      let data = {
-        itemName: $("#itemName").val(),
-        itemQuantity:$("#itemQuantity").val(),
-        location: $("#itemLocation").val()
+    // JavaScript function to handle adding item
+    function addItem() {
+      const itemName = document.getElementById("itemName").value;
+      const itemQuantity = document.getElementById("itemQuantity").value;
+      const itemLocation = document.getElementById("itemLocation").value;
+
+      if (itemName && itemQuantity && itemLocation) {
+        const tableBody = document.querySelector("table tbody");
+        const newRow = document.createElement("tr");
+
+        newRow.innerHTML = `
+          <td>${itemName}</td>
+          <td>${itemQuantity}</td>
+          <td>${itemLocation}</td>
+          <td class="text-right">
+            <div class="dropdown">
+              <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                &#x22EE;
+              </button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="#">Duplicate</a>
+                <a class="dropdown-item" href="#">Edit</a>
+                <a class="dropdown-item text-danger" href="#">Delete</a>
+              </div>
+            </div>
+          </td>
+        `;
+
+        tableBody.appendChild(newRow);
+
+        // Clear form and close modal
+        document.getElementById("addItemForm").reset();
+        $('#addItemModal').modal('hide');
+      } else {
+        alert("Please fill out all fields.");
       }
-      apiCall("https://api.ipinfo.info/api/", data, callback1);
-      
     }
-
-    function callback1(msg){
-      console.log("hellowwww ", msg.error.code);
-    }
-
-
   </script>
 </body>
-
 </html>
+

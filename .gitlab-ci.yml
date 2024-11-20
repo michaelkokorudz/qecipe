@@ -3,28 +3,38 @@ stages:
   - build
   - test
 
+# Global variables
+variables:
+  BUILD_DIR: "build"  # Directory for CMake builds
+
+# Global setup for shared/shell runners
+before_script:
+  - echo "Preparing environment..."
+  - apt-get update -y
+  - apt-get install -y cmake make g++ sqlite3 libsqlite3-dev
+
 # Build stage
 build:
   stage: build
   script:
-    - echo "Building project..."
-    - mkdir -p build
-    - cd build
+    - echo "Building project with CMake..."
+    - mkdir -p $BUILD_DIR
+    - cd $BUILD_DIR
     - cmake ..
     - make
   artifacts:
     paths:
-      - build/  # Save build artifacts for debugging if needed
+      - $BUILD_DIR/  # Preserve build output for use in later stages
 
 # Test stage
 test:
   stage: test
   script:
-    - echo "Running tests..."
-    - mkdir -p build
-    - cd build
+    - echo "Running tests with CTest..."
+    - mkdir -p $BUILD_DIR
+    - cd $BUILD_DIR
     - cmake ..
     - make
-    - ctest --output-on-failure
+    - ctest --output-on-failure  # Run tests and show detailed output on failure
   dependencies:
-    - build  # Ensure the build job runs before tests
+    - build  # Ensure the build job completes before tests

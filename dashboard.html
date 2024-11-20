@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons for user icon -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 200px; /* Set width here for consistency */
+      min-width: 200px; /* Use min-width to prevent shrinking */
+      max-width: 200px; /* Use max-width to prevent expanding */
+      background-color: #62bb2e;
+      padding: 15px;
+    }
+    .sidebar a {
+      color: white;
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+    }
+    .sidebar a:hover {
+      background-color: #294f14;
+      color: white;
+    }
+    .content {
+      flex-grow: 1;
+      padding: 20px;
+    }
+    .btn-custom {
+      background-color: #62bb2e;
+      color: white;
+    }
+    .btn-custom:hover {
+      background-color: #294f14;
+      color: white;
+    }
+    .navbar .user-icon {
+      font-size: 1.5rem;
+      color: #62bb2e;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="index.html" class="text-white">
+      <h4>QECIPE</h4>
+    </a>
+    <a href="fridge.html">My Fridge</a>
+    <a href="recipes.html">Recipes</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <span class="navbar-brand mb-0 h1">Dashboard</span>
+      <div class="ml-auto">
+        <i class="bi bi-person-circle user-icon"></i> <!-- User Icon -->
+      </div>
+    </nav>
+
+    <p>Welcome to the QECIPE Dashboard! Here, you can manage your fridge inventory, browse recipes, and adjust settings.</p>
+
+    <!-- Accordion Dashboard -->
+    <div class="accordion" id="dashboardAccordion">
+
+      <!-- My Fridge Section -->
+      <div class="card">
+        <div class="card-header" id="headingFridge">
+          <h2 class="mb-0">
+            <button class="btn btn-link" type="button" style="color: black;" data-toggle="collapse" data-target="#collapseFridge" aria-expanded="true" aria-controls="collapseFridge">
+              My Fridge
+            </button>
+          </h2>
+        </div>
+        <div id="collapseFridge" class="collapse show" aria-labelledby="headingFridge" data-parent="#dashboardAccordion">
+          <div class="card-body">
+            <p>Manage your fridge inventory, add items, and check quantities.</p>
+            <a href="fridge.html" class="btn btn-custom">Go to My Fridge</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipe Lookup Section -->
+      <div class="card">
+        <div class="card-header" id="headingRecipes">
+          <h2 class="mb-0">
+            <button class="btn btn-link collapsed" type="button" style="color: black;" data-toggle="collapse" data-target="#collapseRecipes" aria-expanded="false" aria-controls="collapseRecipes">
+              Recipe Lookup
+            </button>
+          </h2>
+        </div>
+        <div id="collapseRecipes" class="collapse" aria-labelledby="headingRecipes" data-parent="#dashboardAccordion">
+          <div class="card-body">
+            <p>Browse recommended recipes, find new ideas based on your fridge contents, and save your favorites.</p>
+            <a href="recipes.html" class="btn btn-custom">Go to Recipe Lookup</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Section
+      <div class="card">
+        <div class="card-header" id="headingSettings">
+          <h2 class="mb-0">
+            <button class="btn btn-link collapsed" type="button" style="color: black;" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="false" aria-controls="collapseSettings">
+              Settings
+            </button>
+          </h2>
+        </div>
+        <div id="collapseSettings" class="collapse" aria-labelledby="headingSettings" data-parent="#dashboardAccordion">
+          <div class="card-body">
+            <p>Customize your preferences and manage your account settings.</p>
+            <a href="settings.html" class="btn btn-custom">Go to Settings</a>
+          </div>
+        </div>
+      </div> -->
+
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

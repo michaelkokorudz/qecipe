@@ -64,7 +64,8 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <span class="navbar-brand mb-0 h1">My Fridge</span>
       <div class="ml-auto">
-        <i class="bi bi-person-circle user-icon"></i> <!-- User Icon -->
+        <i id="usernameDisplay" class="bi bi-person-circle user-icon"></i> <!-- User Icon -->
+        <span id="usernameLabel" style="font-size: 1rem; color: #62bb2e; margin-left: 10px;"></span>
       </div>
     </nav>
 
@@ -82,7 +83,9 @@
         <tr>
           <th scope="col">Item</th>
           <th scope="col">Quantity</th>
+          <th scope="col">Unit</th>
           <th scope="col">Location</th>
+          <th scope="col">Expiration Date</th>
           <th scope="col" class="text-right">Actions</th>
         </tr>
       </thead>
@@ -106,26 +109,58 @@
           <form id="addItemForm">
             <div class="form-group">
               <label for="itemName">Item Name</label>
-              <input type="text" class="form-control" id="itemName" placeholder="Enter item name">
+              <select class="form-control" id="itemName">
+                <option value="Milk">Milk</option>
+                <option value="Eggs">Eggs</option>
+                <option value="Butter">Butter</option>
+                <option value="Cheese">Cheese</option>
+                <option value="Yogurt">Yogurt</option>
+                <option value="Chicken">Chicken</option>
+                <option value="Beef">Beef</option>
+                <option value="Fish">Fish</option>
+                <option value="Apples">Apples</option>
+                <option value="Bananas">Bananas</option>
+                <option value="Oranges">Oranges</option>
+                <option value="Potatoes">Potatoes</option>
+                <option value="Tomatoes">Tomatoes</option>
+                <option value="Onions">Onions</option>
+                <option value="Carrots">Carrots</option>
+                <option value="Rice">Rice</option>
+                <option value="Pasta">Pasta</option>
+                <option value="Flour">Flour</option>
+                <option value="Sugar">Sugar</option>
+                <option value="Salt">Salt</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="itemQuantity">Quantity</label>
               <input type="number" class="form-control" id="itemQuantity" placeholder="Enter quantity">
             </div>
             <div class="form-group">
+              <label for="itemUnit">Unit</label>
+              <select class="form-control" id="itemUnit">
+                <option value="L">L</option>
+                <option value="Kg">Kg</option>
+                <option value="Items">Items</option>
+              </select>
+            </div>
+            <div class="form-group">
               <label for="itemLocation">Location</label>
               <select class="form-control" id="itemLocation">
-                <option>Fridge</option>
-                <option>Freezer</option>
-                <option>Pantry</option>
+                <option value="Fridge">Fridge</option>
+                <option value="Pantry">Pantry</option>
               </select>
+            </div>
+            <div class="form-group">
+              <label for="expirationDate">Expiration Date</label>
+              <input type="date" class="form-control" id="expirationDate">
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary" style="background-color: #62bb2e; color: white;"
-            onclick="addItem()">Add Item</button>
+            onclick="addFridgeItem()">Add Item</button>
         </div>
       </div>
     </div>
@@ -135,24 +170,15 @@
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="js/comms.js"></script>
+  <script src="js/comm_mikey.js"></script>
   <script>
-    function addItem(){
-      console.log("hello");
-      let data = {
-        itemName: $("#itemName").val(),
-        itemQuantity:$("#itemQuantity").val(),
-        location: $("#itemLocation").val()
+    document.addEventListener("DOMContentLoaded", function () {
+      const username = getUsername();
+      if (username) {
+        document.getElementById("usernameLabel").innerText = username;
       }
-      apiCall("https://api.ipinfo.info/api/", data, callback1);
-      
-    }
-
-    function callback1(msg){
-      console.log("hellowwww ", msg.error.code);
-    }
-
-
+      fetchFridgeItems();
+    });
   </script>
 </body>
 

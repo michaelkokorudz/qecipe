@@ -4,30 +4,23 @@
 #include "mongoose.h"
 #include <string>
 #include <map>
-#include <ctime>
 
-// Initializes routes and starts the HTTP listener
-void setupRoutes(struct mg_mgr *mgr);
-
-// Parses the body from an HTTP message
-std::string getBody(const struct mg_http_message* hm);
-
-// Parses the URI from an HTTP message
-std::string getUri(const struct mg_http_message* hm);
-
-// Parses the HTTP method from an HTTP message
-std::string getMethod(const struct mg_http_message* hm);
-
-// Parses a URL query string into a key-value map
+// Utility functions
+void addCORSHeaders(mg_connection* conn);
+void handlePreflight(mg_connection* conn);
+std::string getBody(const mg_http_message* hm);
 std::map<std::string, std::string> parseQueryString(const std::string& body);
 
-// Parses a date string in "YYYY-MM-DD" format to std::time_t
-std::time_t parseDate(const std::string& dateStr);
+// Request handlers
+void handleAddUser(mg_connection* conn, const mg_http_message* hm);
+void handleCheckUserExists(mg_connection* conn, const mg_http_message* hm);
+void handleLoginUser(mg_connection* conn, const mg_http_message* hm);
+void handleGetFridgeItems(mg_connection* conn, const mg_http_message* hm);
+void handleAddSpiceItem(mg_connection* conn, const mg_http_message* hm);
+void handleGetSpiceItems(mg_connection* conn, const mg_http_message* hm);
+void handleGetQuantityAndUnits(mg_connection* conn, const mg_http_message* hm);
 
-// Compares a URI with a target string
-bool uriEquals(const std::string& uri, const char* str);
-
-// Handles adding an item to the fridge inventory
-void handleAddFridgeItem(struct mg_connection* conn, struct mg_http_message* hm);
+// Route setup
+void setupRoutes(mg_mgr* mgr);
 
 #endif // ROUTES_H

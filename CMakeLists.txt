@@ -18,18 +18,20 @@ add_executable(leftoverlab
     backend/src/fridge_inventory.cpp
     backend/src/database.cpp
     backend/src/mongoose.c
-    backend/src/spice_pantry.cpp  # Ensure this file is listed if it exists
+    backend/src/spice_pantry.cpp 
     backend/src/item.cpp    
     backend/src/date_utils.cpp
+    backend/third_party/sqlite/sqlite3.c # SQLite source file
 )
 
 # Include directories for header files
-include_directories(backend/include)
+include_directories(
+    backend/include
+    backend/third_party/sqlite # Include SQLite headers
+)
 
-# Optional: Link SQLite3
-find_package(SQLite3 REQUIRED)
-target_include_directories(leftoverlab PRIVATE ${SQLite3_INCLUDE_DIRS})
-target_link_libraries(leftoverlab PRIVATE ${SQLite3_LIBRARIES})
+# Link the SQLite library statically (no external dependency)
+target_compile_definitions(leftoverlab PRIVATE SQLITE_OMIT_LOAD_EXTENSION SQLITE_THREADSAFE=1)
 
 # Optional: Enable testing (if applicable)
 enable_testing()

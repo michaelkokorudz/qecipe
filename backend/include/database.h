@@ -27,7 +27,7 @@ bool userExists(const std::string& username);                          // Check 
 bool createUserSpecificTables(const std::string& username);
 
 std::string getUsernameById(int userId);
-
+bool removeFridgeItem(const std::string& username, const std::string& itemName);
 // Fridge item management
 bool saveFridgeItem(const std::string& username, const std::string& name, int quantity, const std::string& unit, const std::string& expirationDate);
 bool getFridgeItems(const std::string& username, std::vector<std::string>& items);

@@ -19,7 +19,7 @@ void handleGetFridgeItems(mg_connection* conn, const mg_http_message* hm);
 void handleAddSpiceItem(mg_connection* conn, const mg_http_message* hm);
 void handleGetSpiceItems(mg_connection* conn, const mg_http_message* hm);
 void handleGetQuantityAndUnits(mg_connection* conn, const mg_http_message* hm);
-
+void handleRemoveFridgeItem(mg_connection* conn, const mg_http_message* hm);
 // Route setup
 void setupRoutes(mg_mgr* mgr);
 

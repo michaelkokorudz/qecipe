@@ -581,3 +581,47 @@ std::string getUsernameById(int userId) {
     sqlite3_close(db);
     return username;
 }
+// Remove a fridge item for a specific user and item name
+bool removeFridgeItem(const std::string& username, const std::string& itemName) {
+    sqlite3* db;
+    std::string dbPath = getDatabasePath();
+    if (sqlite3_open(dbPath.c_str(), &db) != SQLITE_OK) {
+        std::cerr << "Error opening database: " << sqlite3_errmsg(db) << std::endl;
+        return false;
+    }
+
+    std::string tableName = generateTableName(username, "Fridge");
+
+    // Verify that the table exists
+    if (!tableExists(tableName)) {
+        std::cerr << "Table " << tableName << " does not exist. Cannot remove item.\n";
+        sqlite3_close(db);
+        return false;
+    }
+
+    // Prepare SQL to delete the item
+    std::string deleteSQL = "DELETE FROM " + tableName + " WHERE name = ?;";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, deleteSQL.c_str(), -1, &stmt, nullptr) == SQLITE_OK) {
+        // Bind the item name to the statement
+        sqlite3_bind_text(stmt, 1, itemName.c_str(), -1, SQLITE_STATIC);
+
+        // Execute the statement
+        if (sqlite3_step(stmt) == SQLITE_DONE) {
+            std::cout << "Successfully removed item '" << itemName << "' from table '" << tableName << "'.\n";
+            sqlite3_finalize(stmt);
+            sqlite3_close(db);
+            return true;
+        } else {
+            std::cerr << "Error removing item: " << sqlite3_errmsg(db) << std::endl;
+        }
+
+        sqlite3_finalize(stmt);
+    } else {
+        std::cerr << "Error preparing statement: " << sqlite3_errmsg(db) << std::endl;
+    }
+
+    sqlite3_close(db);
+    return false;
+}

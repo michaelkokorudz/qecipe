@@ -35,6 +35,17 @@
       color: white;
     }
 
+    .btn-secondary {
+      background-color: #f8f9fa;
+      color: #62bb2e;
+      border: 1px solid #62bb2e;
+    }
+
+    .btn-secondary:hover {
+      background-color: #62bb2e;
+      color: white;
+    }
+
     .error-message {
       color: red;
       display: none;
@@ -44,11 +55,21 @@
       color: green;
       display: none;
     }
+
+    .title {
+      font-size: 4rem;
+      font-weight: bold;
+      text-align: center;
+      color: #62bb2e;
+      margin-bottom: 25px;
+    }
   </style>
 </head>
 
 <body>
   <div class="login-container">
+     <!-- QECIPE Title -->
+    <div class="title">QECIPE</div>
     <h1 class="text-center" style="color: #62bb2e;">Login</h1>
 
     <!-- Login Form -->
@@ -63,6 +84,12 @@
       </div>
       <button type="submit" class="btn btn-action btn-block">Login</button>
     </form>
+     <!-- Link to Login -->
+     <p class="text-center mt-3">
+      Don't have an account?
+      <a href="signup.html" class="btn btn-secondary btn-block mt-2">Sign-Up Here</a>
+    </p>
+
 
     <p id="loginMessage" class="text-center mt-3"></p>
   </div>

@@ -263,6 +263,36 @@ void handleGetQuantityAndUnits(mg_connection* conn, const mg_http_message* hm) {
         mg_http_reply(conn, 400, headers.c_str(), "%s", response_body.c_str());
     }
 }
+// Handler for removing a fridge item
+void handleRemoveFridgeItem(mg_connection* conn, const mg_http_message* hm) {
+    auto params = parseQueryString(getBody(hm));
+    std::string response_body;
+    std::string headers = getCORSHeaders() + "Content-Type: text/plain\r\nConnection: keep-alive\r\n";
+
+    try {
+        std::string username = params.at("username");
+        std::string itemName = params.at("name");
+
+        // Attempt to remove the fridge item
+        if (removeFridgeItem(username, itemName)) {
+            response_body = "Fridge item removed successfully";
+            mg_http_reply(conn, 200, headers.c_str(), "%s", response_body.c_str());
+        } else {
+            response_body = "Failed to remove Fridge item";
+            mg_http_reply(conn, 500, headers.c_str(), "%s", response_body.c_str());
+        }
+    } catch (const std::out_of_range&) {
+        response_body = "Missing required parameters: username and name";
+        mg_http_reply(conn, 400, headers.c_str(), "%s", response_body.c_str());
+    } catch (const std::exception& e) {
+        response_body = "Invalid input parameters";
+        mg_http_reply(conn, 400, headers.c_str(), "%s", response_body.c_str());
+    }
+}
+
+
+
+
 
 // Setup routes for HTTP server
 void setupRoutes(mg_mgr* mgr) {
@@ -295,6 +325,8 @@ void setupRoutes(mg_mgr* mgr) {
                     handleGetSpiceItems(conn, hm);
                 } else if (uri == "/get_quantity_and_units") {
                     handleGetQuantityAndUnits(conn, hm);
+                } else if (uri == "/remove_fridge_item") {
+                    handleRemoveFridgeItem(conn, hm);
                 } else {
                     // Unknown POST route
                     std::string response_body = "Not found";

@@ -8,9 +8,8 @@
 
 // Helper function to get the full path of the database
 std::string getDatabasePath() {
-    return "/Users/michaelkokorudz/Documents/3rd Year Sem 1/CMPE320/workspaceC++/leftoverlab/backend/database/inventory.db";
+    return "../backend/database/inventory.db"; // Go one directory up
 }
-
 // Ensure the database directory exists
 void ensureDatabaseDirectoryExists() {
     const std::string dir = "backend/database/";

@@ -52,7 +52,6 @@ function apiCall(endpoint, data, method = "POST", callback) {
             if (err.status === 404) {
                 console.log("User not found, proceeding to add user...");
                 addUser(username, password); // Call the add user function
-                window.location.href = "login.html"; // Redirect to login
             } else {
                 console.error("Error checking user:", err);
                 alert("Error checking user: " + (err.error || err.statusText));
@@ -84,9 +83,12 @@ function addUser(username, password) {
             return;
         }
 
-        if (response.trim() === "User added successfully") {
+      if (response.trim() === "User added successfully") {
+            // Notify user of successful signup
             alert("Signup successful! Please login.");
-            window.location.href = "login.html"; // Redirect to login
+
+            // Redirect after the alert
+            window.location.href = "login.html"; // Immediate redirect to login
         } else {
             // Handle unexpected responses
             console.warn("Unexpected response during signup:", response);

@@ -1,8 +1,10 @@
 #include "routes.h" // Include routes header where you defined setupRoutes
 #include "mongoose.h" // Include mongoose for server setup
+#include "database.h"
 
 int main() {
     // Initialize Mongoose manager
+    initializeDatabase();
     mg_mgr mgr;
     mg_mgr_init(&mgr);
 

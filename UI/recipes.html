@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,45 +8,67 @@
   <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <!-- Bootstrap Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
+    rel="stylesheet">
+  <link href="bootstrap-tagsinput.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
   <style>
     body {
       display: flex;
       height: 100vh;
     }
+
     .sidebar {
-      width: 200px; /* Set width here for consistency */
-      min-width: 200px; /* Use min-width to prevent shrinking */
-      max-width: 200px; /* Use max-width to prevent expanding */
+      width: 200px;
+      min-width: 200px;
+      max-width: 200px;
       background-color: #62bb2e;
       padding: 15px;
     }
+
     .sidebar a {
       color: white;
       padding: 10px 15px;
       display: block;
       text-decoration: none;
     }
+
     .sidebar a:hover {
       background-color: #294f14;
       color: white;
     }
+
     .content {
       flex-grow: 1;
       padding: 20px;
     }
+
     .navbar .user-icon {
       font-size: 1.5rem;
       color: #62bb2e;
     }
-    .filter-bar {
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
+    #ingredientsDropdown {
+    max-width: 60%; /* Adjust dropdown width */
+    min-width: 50%; /* Minimum dropdown width */
+  }
+
+  #searchButton {
+    height: 100%; /* Align button height with dropdown */
+  }
+
+  .form-inline .form-control {
+    margin-right: 10px; /* Spacing between dropdown and button */
+  }
+  .search-box {
+  font-size: 1.5rem; /* Increase font size for text */
+  padding: 12px; /* Add padding for a larger look */
+  width: 100%; /* Make it span the full width of the column */
+  border: 6px solid #62bb2e; /* Optional: Add a thicker border for emphasis */
+}
+
   </style>
 </head>
+
 <body>
 
   <!-- Sidebar -->
@@ -62,132 +85,97 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <span class="navbar-brand mb-0 h1">Recipe</span>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ml-auto">
-          <!-- Navbar Links -->
-          <li class="nav-item">
-            <a class="nav-link" href="#">Find Recipes</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Previous Recipes</a>
-          </li>
-        </ul>
-      </div>
       <div class="ml-auto">
-        <i class="bi bi-person-circle user-icon"></i> <!-- User Icon -->
+        <i id="usernameDisplay" class="bi bi-person-circle user-icon"></i> <!-- User Icon -->
+        <span id="usernameLabel" style="font-size: 1rem; color: #62bb2e; margin-left: 10px;"></span>
       </div>
     </nav>
 
-    <!-- Filter Bar -->
-    <div class="filter-bar container mt-4">
-      <h4>Filter Recipes</h4>
-      <form id="filterForm" class="form-inline">
-        
-        <!-- Ingredient Filter -->
-        <div class="form-group mr-3">
-          <label for="ingredientFilter" class="mr-2">Ingredients</label>
-          <select id="ingredientFilter" class="form-control">
-            <option value="">Select Ingredient</option>
-            <option value="Apples">Apples</option>
-            <option value="Carrots">Carrots</option>
-            <option value="Chicken">Chicken</option>
-            <!-- Add more ingredients as needed -->
-          </select>
+  <!-- Filter Section -->
+  <!-- Filter Section -->
+  <div class="filter-bar container mt-4">
+    <h4 class="mb-3">Filter Recipes</h4>
+    <div class="row">
+      <!-- Search Bar -->
+      <div class="col-md-6">
+        <h6>Filter By Any Ingredient</h6>
+        <div class="form-group mb-3">
+          <input id="tags" type="text" value="" class="form-search-box" data-role="tagsinput" 
+                onchange="filterRecipes()" placeholder="Enter Ingredient or Keyword">
         </div>
-
-        <!-- Duration Filter -->
-        <div class="form-group mr-3">
-          <label for="durationFilter" class="mr-2">Duration</label>
-          <select id="durationFilter" class="form-control">
-            <option value="">Select Duration</option>
-            <option value="15">15 minutes</option>
-            <option value="30">30 minutes</option>
-            <option value="45">45 minutes</option>
-            <option value="60">60 minutes</option>
+      </div>
+      
+      <!-- Dropdown Menu and Search Button -->
+      <div class="col-md-6">
+        <h6>By Fridge Ingredient</h6>
+        <div class="form-inline mb-3">
+          <select id="ingredientsDropdown" class="form-control mr-2" style="width: 60%;">
+            <option value="">Select an Ingredient</option>
+            <!-- Dropdown options will be populated dynamically -->
           </select>
-        </div>
-
-        <!-- Type of Meal Filter -->
-        <div class="form-group mr-3">
-          <label for="mealTypeFilter" class="mr-2">Type of Meal</label>
-          <select id="mealTypeFilter" class="form-control">
-            <option value="">Select Type</option>
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Snack">Snack</option>
-          </select>
-        </div>
-
-        <!-- Filter Button -->
-        <button type="button" class="btn btn-primary" style="background-color: #62bb2e; color: white;" onclick="filterRecipes()">Apply Filters</button>
-      </form>
+          <button id="searchButton" class="btn btn-success mr-2" onclick="searchByDropdown()">Search</button>
+          <button id="clearButton" class="btn btn-secondary" onclick="reloadPage()">Clear</button>
+        </div>      
+      </div>
+      
     </div>
+  </div>
 
-    
 
     <!-- Recommended Recipes Section -->
     <div class="container mt-4">
       <h2>Recommended Recipes</h2>
-      <div class="row">
-        <!-- Recipe Card 1 -->
-        <div class="col-md-4">
-          <div class="card mb-4">
-            <img src="Images/dinner-ideas-2.jpg" class="card-img-top" alt="Baked Pasta">
-            <div class="card-body">
-              <h5 class="card-title">Baked Pasta</h5>
-              <p class="card-text">Delicious baked pasta with fresh herbs and cheese, perfect for a cozy dinner.</p>
-              <a href="#" class="btn btn-primary" style="background-color: #62bb2e; color: white; border: #294f14;">View Recipe</a>
-            </div>
-          </div>
-        </div>
+      <div class="row" id="recipe-cards"></div>
+    </div>
+  </div>
 
-        <!-- Recipe Card 2 - Creamy Mushroom and Spinach Pasta -->
-        <div class="col-md-4">
-          <div class="card mb-4">
-            <img src="Images/Creamy-mushroom-and-spinach-pasta-9b0582e.jpg" class="card-img-top" alt="Creamy Mushroom and Spinach Pasta">
-            <div class="card-body">
-              <h5 class="card-title">Creamy Mushroom and Spinach Pasta</h5>
-              <p class="card-text">A comforting pasta dish with creamy mushroom sauce and spinach.</p>
-              <a href="#" class="btn btn-primary" style="background-color: #62bb2e; color: white; border: #294f14;">View Recipe</a>
-            </div>
-          </div>
+  <!-- Recipe Modal -->
+  <div class="modal fade" id="recipeModal" tabindex="-1" aria-labelledby="recipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="recipeModalLabel">Recipe Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <div class="modal-body">
+          <h3 id="recipeTitle"></h3>
+          <img id="recipeImage" src="" alt="Recipe Image" class="img-fluid mb-3">
+          <p id="recipeDescription"></p>
+          <h5 class="inline">Time:</h5>
+          <ul id="recipeTime" class="inline"></ul>
+          <h5>Nutrition:</h5>
 
-        <!-- Recipe Card 3 - Roasted Vegetables -->
-        <div class="col-md-4">
-          <div class="card mb-4">
-            <img src="Images/roasted-vegetables-9.jpg" class="card-img-top" alt="Roasted Vegetables">
-            <div class="card-body">
-              <h5 class="card-title">Roasted Vegetables</h5>
-              <p class="card-text">A healthy and colorful mix of roasted vegetables with herbs.</p>
-              <a href="#" class="btn btn-primary" style="background-color: #62bb2e; color: white; border: #294f14;">View Recipe</a>
-            </div>
-          </div>
+          <h5>Ingredients:</h5>
+          <ul id="recipeIngredients"></ul>
+          <h5>Instructions:</h5>
+          <p id="recipeInstructions"></p>
         </div>
-
-        <!-- Recipe Card 4 - Cauliflower Stir-fry -->
-        <div class="col-md-4">
-          <div class="card mb-4">
-            <img src="Images/1533148371584.jpeg" class="card-img-top" alt="Cauliflower Stir-fry">
-            <div class="card-body">
-              <h5 class="card-title">Cauliflower Stir-fry</h5>
-              <p class="card-text">A flavorful cauliflower stir-fry topped with fresh herbs and nuts.</p>
-              <a href="#" class="btn btn-primary" style="background-color: #62bb2e; color: white; border: #294f14;">View Recipe</a>
-            </div>
-          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
-
       </div>
     </div>
   </div>
 
+
   <!-- Bootstrap JS and dependencies -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <script src="js/comms.js"></script>
-  
-
+  <script src="js/bootstrap-tagsinput.js"></script>
+  <script src="js/recipes.js"></script>
+  <script src="js/comm_mikey.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const username = getUsername();
+      if (username) {
+        document.getElementById("usernameLabel").innerText = username;
+      }
+      fetchFridgeItems();
+    });
+  </script>
 </body>
+
 </html>

@@ -1,52 +1,78 @@
 /* General Styling for Text and Buttons */
 
-.green-text {
-    color: #62bb2e; /* Sidebar green */
+body {
+    display: flex;
+    height: 100vh;
 }
-
-.green-background {
-    background-color: #62bb2e; /* Use for backgrounds matching sidebar */
-    color: white; /* Text color for contrast on green backgrounds */
-}
-
-/* Sidebar Styling */
-
 .sidebar {
-    width: 250px;
-    background-color: #62bb2e;
+    width: 200px;
+    /* Set width here for consistency */
+    min-width: 200px;
+    /* Use min-width to prevent shrinking */
+    max-width: 200px;
+    /* Use max-width to prevent expanding */
+    background-color: #62BB2E;
     padding: 15px;
-    position: fixed;
-    height: 100%;
 }
-
 .sidebar a {
     color: white;
     padding: 10px 15px;
     display: block;
     text-decoration: none;
 }
-
 .sidebar a:hover {
-    background-color: #294f14; /* Darker shade for hover */
+    background-color: #294F14;
     color: white;
 }
-
-/* Button Styling */
-
-.btn-green {
-    background-color: #62bb2e;
-    color: white;
-    border: none;
+.content {
+    flex-grow: 1;
+    padding: 20px;
+}
+.navbar .user-icon {
+    font-size: 1.5rem;
+    color: #62BB2E;
+}
+.filter-bar {
+    padding: 10px;
+    background-color: #F8F9FA;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+.inline {
+    display: inline;
+}
+.bootstrap-tagsinput .tag {
+    margin-right: 2px;
+    color: black;
 }
 
-.btn-green:hover {
-    background-color: #294f14; /* Darker shade for hover */
-    color: white;
-}
+.card {
+    display: flex;
+    flex-direction: column; /* Ensures content stacks properly */
+    justify-content: space-between; /* Distributes content evenly */
+    height: 300px; /* Set the same height for all cards */
+    width: 100%; /* Optional: Sets consistent width */
+    max-width: 400px; /* Optional: Limits maximum width */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Adds shadow for uniformity */
+    margin: 10px; /* Adds spacing between cards */
+    overflow: hidden; /* Prevents overflow of content */
+  }
+  .card img {
+    height: 150px; /* Set a consistent height for images */
+    object-fit: cover; /* Ensures images are cropped proportionally */
+    width: 100%; /* Ensures images fit the card width */
+  }
+  .card-body {
+    padding: 10px; /* Adjust padding for content */
+    overflow-y: auto; /* Allows content scrolling if necessary */
+  }
 
-/* Use the same green color for header elements, borders, etc. */
 
-h1.green-text, h2.green-text, h3.green-text {
-    color: #62bb2e;
-    font-weight: bold;
-}
+
+
+
+
+
+
+
+

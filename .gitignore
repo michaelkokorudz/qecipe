@@ -3,6 +3,11 @@
 /backend/lib/
 /backend/Ultralight/build/
 
+/build/
+/flask/build/
+/frontend/build/
+/UI/build/
+
 # Ultralight repo and other dependencies
 /backend/Ultralight/.git/
 /backend/Ultralight/.gitmodules
@@ -45,3 +50,53 @@ Makefile
 # Backup files
 *.bak
 *~
+
+# Node.js dependencies
+node_modules/
+/frontend/node_modules/
+
+# Python virtual environments
+venv/
+env/
+
+# Python bytecode
+*.pyc
+__pycache__/
+
+# SQLite database files
+*.sqlite3
+*.db
+
+# Flask-specific temporary files
+instance/
+/flask/instance/
+
+# Test outputs
+*.test.out
+*.coverage
+
+# Git temporary or conflict files
+*.orig
+*.rej
+
+# API keys and environment variables
+.env
+.env.*
+
+# UI artifacts
+/UI/dist/
+/UI/node_modules/
+
+# CSS artifacts
+*.css.map
+*.sass-cache/
+*.scssc
+
+# Frontend package lock
+/frontend/package-lock.json
+
+# Backend logs
+/backend/*.log
+
+# CI/CD files (if not needed in the repository)
+.gitlab-ci.yml

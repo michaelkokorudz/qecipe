@@ -44,8 +44,6 @@ Makefile
 *.log
 *.swp
 
-# JSON data files for temporary storage or test data
-*.json
 
 # Backup files
 *.bak
